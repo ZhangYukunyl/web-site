@@ -64,7 +64,7 @@
       <p style="color:var(--muted);font-size:14px;">For the fastest quotation, please include: product type, specification (weight / width / material if known), estimated quantity and destination port.</p>
     </div>
 
-    <form class="quote" id="quoteForm" onsubmit="return prepareInquiry(event)">
+    <form class="quote" id="quoteForm" onsubmit="return submitInquiry(event)">
       <label for="name">Your Name *</label>
       <input id="name" name="name" required placeholder="Full name">
 
@@ -91,12 +91,20 @@
       <label for="msg">Specification &amp; Requirements *</label>
       <textarea id="msg" name="msg" required placeholder="Specification, application, quantity, destination port..."></textarea>
 
-      <button type="submit">Prepare My Inquiry</button>
-      <p class="form-note">No server involved: on the next step your inquiry is sent from your own email app or WhatsApp — we never see or store your password.</p>
+      <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
 
-      <div class="form-ok" id="formOk">
-        <b>Your inquiry is ready.</b><br>
-        Choose how to send it:
+      <button type="submit" id="sendBtn">Send Inquiry</button>
+      <p class="form-note" id="formNote">Your inquiry goes straight to our export team — we reply within 24 hours on working days.</p>
+
+      <div class="form-ok" id="formDone" style="display:none;">
+        <b>Thank you — your inquiry has been sent.</b><br>
+        We will reply to your email within 24 hours on working days.
+        <p style="margin-top:10px;"><a class="btn" href="https://wa.me/8615225911240" target="_blank" rel="noopener">Chat on WhatsApp</a></p>
+      </div>
+
+      <div class="form-ok" id="formFallback" style="display:none;">
+        <b>Could not send automatically.</b><br>
+        Send it through one of these instead — your details are already filled in:
         <p style="margin-top:10px;">
           <a class="btn blue" id="btnMail" href="#">Send by Email</a>
           <a class="btn" id="btnWa" href="#" target="_blank" rel="noopener" style="margin-left:10px;">Send by WhatsApp</a>
@@ -167,33 +175,45 @@
 </a>
 
 <script>
-function prepareInquiry(e){
+function inquiryData(){
+  var g=function(id){var el=document.getElementById(id);return el?el.value.trim():'';};
+  return {name:g('name'),email:g('email'),country:g('country'),product:g('product'),qty:g('qty'),msg:g('msg'),website:g('website')};
+}
+/* 兜底通道：自动发送失败时，用本地邮件客户端或 WhatsApp 把询盘发出去 */
+function buildFallback(d){
+  document.getElementById('btnMail').href='mailto:zhangyukunyl@gmail.com?subject='+encodeURIComponent('Inquiry: '+d.product+' — '+d.name)+'&body='+encodeURIComponent(
+    'Name: '+d.name+'\n'+'Email: '+d.email+'\n'+'Country: '+(d.country||'-')+'\n'+
+    'Product: '+d.product+'\n'+'Quantity: '+(d.qty||'-')+'\n\n'+d.msg);
+  document.getElementById('btnWa').href='https://wa.me/8615225911240?text='+encodeURIComponent(
+    'Hello, inquiry from '+d.name+' ('+(d.country||'overseas')+')\n'+'Product: '+d.product+'\n'+
+    'Quantity: '+(d.qty||'-')+'\n\n'+d.msg);
+}
+function showBox(id){
+  var el=document.getElementById(id);
+  el.style.display='block';
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+async function submitInquiry(e){
   e.preventDefault();
-  var g=function(id){return document.getElementById(id).value.trim();};
-  var name=g('name'),email=g('email'),country=g('country'),product=g('product'),qty=g('qty'),msg=g('msg');
-  var subject=encodeURIComponent('Inquiry: '+product+' — '+name);
-  var body=encodeURIComponent(
-    'Name: '+name+'\n'+
-    'Email: '+email+'\n'+
-    'Country: '+(country||'-')+'\n'+
-    'Product: '+product+'\n'+
-    'Quantity: '+(qty||'-')+'\n\n'+
-    msg
-  );
-  var waText=encodeURIComponent(
-    'Hello, inquiry from '+name+' ('+(country||'overseas')+')\n'+
-    'Product: '+product+'\n'+
-    'Quantity: '+(qty||'-')+'\n\n'+msg
-  );
-  var m=document.getElementById('btnMail'),w=document.getElementById('btnWa');
-  m.href='mailto:zhangyukunyl@gmail.com?subject='+subject+'&body='+body;
-  w.href='https://wa.me/8615225911240?text='+waText;
-  var ok=document.getElementById('formOk');
-  ok.style.display='block';
-  ok.scrollIntoView({behavior:'smooth',block:'center'});
-  return false;
+  var d=inquiryData(), btn=document.getElementById('sendBtn');
+  document.getElementById('formDone').style.display='none';
+  document.getElementById('formFallback').style.display='none';
+  var label=btn.textContent;
+  btn.disabled=true; btn.textContent='Sending…';
+  try{
+    var r=await fetch('/api/inquiry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
+    var j={}; try{ j=await r.json(); }catch(_){}
+    if(r.ok && j.ok){ document.getElementById('quoteForm').reset(); showBox('formDone'); return false; }
+    throw new Error(j.error || ('HTTP '+r.status));
+  }catch(err){
+    buildFallback(d); showBox('formFallback'); return false;
+  }finally{
+    btn.disabled=false; btn.textContent=label;
+  }
 }
 </script>
+
+<script src="js/site.js" defer></script>
 
 </body>
 </html>

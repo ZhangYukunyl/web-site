@@ -13,17 +13,24 @@ web-site/
 ├── about.html          关于我们（公司定位 + 出口流程 5 步 + 选择理由 + 产线实拍）
 ├── quality.html        质量与服务（质控 3 步 + 检验内容 + 出口支持）
 ├── insights.html       资讯洞察列表页（4 篇买家指南）
-├── insights-filter-cloth-selection.html    指南：液体过滤滤布选型
-├── insights-air-filter-media-grades.html   指南：空气滤材等级 F5–F9 与 ISO 16890
-├── insights-dust-filter-bag-service-life.html  指南：除尘滤袋寿命与更换
-├── insights-food-grade-filter-paper-guide.html 指南：食品级滤纸采购清单
-├── contact.html        联系我们（询盘表单：邮件/WhatsApp 双通道 + FAQ 8 条）
+├── insights-*.html     4 篇指南文章页
+├── dust-collection-filter-bag.html        产品详情页（8 个高频产品，均含规格表/FAQ/询盘）
+├── air-filter-media.html
+├── fiberglass-filter-media.html
+├── replacement-filter-pad.html
+├── flat-bed-filter-cloth.html
+├── coffee-filter-paper.html
+├── tea-bag-filter-paper.html
+├── air-slide-fabric.html
+├── functions/api/inquiry.js   询盘表单后端（Cloudflare Pages Function + Resend 发信）
+├── js/site.js          流量统计加载器（填 token 后全站生效）
+├── contact.html        联系我们（询盘表单：自动发信 + 邮件/WhatsApp 兜底 + FAQ 8 条）
 ├── css/style.css       全站共享样式（改一处，全站生效）
-├── img/                16 张配图 + og-image.jpg（已压缩，共约 0.9 MB）
+├── img/                17 张配图 + og-image.jpg（已压缩，共约 0.9 MB）
 ├── favicon.ico         网站图标（多尺寸）
 ├── apple-touch-icon.png  iOS 图标
 ├── favicon-512.png     高清图标源文件
-├── sitemap.xml         站点地图（11 条 URL，提交 Google Search Console 用）
+├── sitemap.xml         站点地图（19 条 URL，提交 Google Search Console 用）
 ├── robots.txt          搜索引擎抓取规则
 └── README.md
 ```
@@ -46,6 +53,28 @@ Cloudflare Pages 默认域名：`filtercloth.pages.dev`（可保留作备用入�
 2. Cloudflare Pages 检测到推送后自动重新部署，约 1 分钟生效
 3. 若访问 404：确认文件在仓库根目录、Deployments 状态为 Success
 
+## 询盘自动发邮件（已内置，激活需 2 步）
+
+代码已就绪：`functions/api/inquiry.js`（Cloudflare Pages Function），表单提交后通过 Resend 直接把询盘发进邮箱；发信失败时表单自动降级为「邮件 / WhatsApp」兜底通道。
+
+激活步骤（约 5 分钟）：
+1. 注册 https://resend.com （免费 3,000 封/月）→ **API Keys → Create** 复制 `re_` 开头的 key
+2. Cloudflare 控制台 → Workers & Pages → 本项目 → **Settings → Environment variables → Add**：
+   - `RESEND_API_KEY` = 你的 key（Production）
+   - `INQUIRY_FROM`（可选）= 如 `inquiry@filcloth.com`（需先在 Resend 验证 filcloth.com 域名，加 2 条 DNS 记录即可；不填则用测试发件人，只能发给你自己的注册邮箱）
+3. 重新部署一次（Settings → Deployments → Retry 或随便推一个文件）
+
+测试：打开 filcloth.com/contact.html 提交一条 → 邮箱收到即为成功。
+
+## 流量统计（已内置，填一个 token 即可）
+
+全站页面已加载 `js/site.js`。推荐用 **Cloudflare Web Analytics**（免费、无 Cookie 弹窗）：
+1. Cloudflare 控制台 → **Analytics & Logs → Web Analytics → Add a site** → 选 `www.filcloth.com` → 复制 token
+2. 编辑仓库里的 **`js/site.js`**（GitHub 网页上直接点文件 → 铅笔编辑），把 token 粘到 `CF_ANALYTICS_TOKEN = ""` 引号里 → Commit
+3. 约 1 分钟后全站开始记录访问
+
+如需 GA4，把 `G-XXXXXXXXXX` 填进同文件的 `GA4_MEASUREMENT_ID` 即可。
+
 ## 修改站点内容
 
 - 联系方式 / 公司名：搜索 `zhangyukunyl@gmail.com`、`152259`、`YIWU FENGLONG` 全局定位
@@ -58,7 +87,7 @@ Cloudflare Pages 默认域名：`filtercloth.pages.dev`（可保留作备用入�
 ## 上线检查清单
 
 - [ ] 浏览器打开 `index.html`，逐个点击导航测试 11 个页面互链
-- [ ] 测试询盘表单（Prepare My Inquiry → Send by Email / Send by WhatsApp）
+- [ ] 测试询盘表单（Send Inquiry → 出现感谢提示；或降级到邮件/WhatsApp 兜底按钮）
 - [ ] 手机端浏览首页与产品页（响应式已适配）
 - [x] 域名已绑定并替换：www.filcloth.com
 - [ ] Google Search Console 提交 https://www.filcloth.com/sitemap.xml
