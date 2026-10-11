@@ -27,9 +27,13 @@ web-site/
 
 ## 上线前必须做的一件事
 
-**替换占位域名**：代码中的 `https://www.yourdomain.com` 是占位符，出现在
-`sitemap.xml`、`robots.txt` 和每个页面的 canonical / og:url / og:image 中。
-绑定正式域名后，把 `yourdomain.com` 全局替换为你的真实域名即可（6 个 html + sitemap.xml + robots.txt，共 8 个文件）。
+## 站点域名
+
+正式域名：**https://www.filcloth.com**
+Cloudflare Pages 默认域名：`filtercloth.pages.dev`（可保留作备用入口）
+
+代码中的 canonical / og:url / og:image、`sitemap.xml`、`robots.txt` 均已指向 `https://www.filcloth.com`（共 31 处）。
+若将来更换域名，搜索 `filcloth.com` 全局替换即可（6 个 html + sitemap.xml + robots.txt + 本 README）。
 
 ## 更新步骤（已部署过，后续照此操作）
 
@@ -51,8 +55,8 @@ web-site/
 - [ ] 浏览器打开 `index.html`，逐个点击导航测试 6 个页面互链
 - [ ] 测试询盘表单（Prepare My Inquiry → Send by Email / Send by WhatsApp）
 - [ ] 手机端浏览首页与产品页（响应式已适配）
-- [ ] 绑定域名后：全局替换 `yourdomain.com` 占位符
-- [ ] Google Search Console 提交 `你的域名/sitemap.xml`
+- [x] 域名已绑定并替换：www.filcloth.com
+- [ ] Google Search Console 提交 https://www.filcloth.com/sitemap.xml
 
 ## 可选升级（需要时再说）
 
