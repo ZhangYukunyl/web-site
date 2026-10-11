@@ -1,49 +1,60 @@
-# YIWU FENGLONG TRADE FIRM — 产品展示站
+# YIWU FENGLONG TRADE FIRM — 滤布出口商多页企业站
 
-单文件英文展示站（B2B、无收费功能），结构参照过滤行业同行网站的通行做法：
-首页 Hero + 精选产品 + 五大产品线（29 个产品）+ 公司介绍 + 联系与询盘表单。
+多页英文企业站（B2B、无收费功能）：首页 + 产品中心 + 行业应用 + 关于我们 + 质量与服务 + 联系我们。
+纯静态、零依赖、零框架，部署在 Cloudflare Pages（免费）。
 
-## 文件说明
+## 文件结构
 
-- `index.html` — 网站唯一页面（含全部内联样式与询盘表单脚本）
-- `img/` — 6 张产品配图（AI 原创生成，无版权风险）
+```
+web-site/
+├── index.html          首页（Hero + 信任条 + 优势 + 精选产品 + 行业应用预览 + 关于摘要 + CTA）
+├── products.html       产品中心（5 大分类、29 个产品，含行业典型值参数表）
+├── applications.html   行业应用（水泥建材 / 食品饮料 / 金属加工 / 电力能源 / 化工环保 / 农业园艺 / 纺织印刷）
+├── about.html          关于我们（公司定位 + 出口流程 5 步 + 选择理由）
+├── quality.html        质量与服务（质控 3 步 + 检验内容 + 出口支持）
+├── contact.html        联系我们（询盘表单：邮件/WhatsApp 双通道 + FAQ 8 条）
+├── css/style.css       全站共享样式（改一处，全站生效）
+├── img/                10 张配图 + og-image.jpg（6 产品图 + 4 复用图，已压缩去水印）
+├── favicon.ico         网站图标（多尺寸）
+├── apple-touch-icon.png  iOS 图标
+├── favicon-512.png     高清图标源文件
+├── sitemap.xml         站点地图（提交 Google Search Console 用）
+├── robots.txt          搜索引擎抓取规则
+└── README.md
+```
 
-> 文案为重新编写的英文原创内容；产品名与品类为行业通用分类；图片为 AI 生成示意产品图，非任何公司实拍图。
+> 产品名与品类为行业通用分类；参数表为行业典型值（页面已标注 "typical values"），不虚构认证编号或实测承诺。图片为 AI 生成示意产品图（已去除生成水印）。
 
-## 部署步骤（Cloudflare Pages + GitHub，全程免费）
+## 上线前必须做的一件事
 
-1. **注册账号**（均免费，无需绑卡）
-   - GitHub：https://github.com
-   - Cloudflare：https://dash.cloudflare.com
+**替换占位域名**：代码中的 `https://www.yourdomain.com` 是占位符，出现在
+`sitemap.xml`、`robots.txt` 和每个页面的 canonical / og:url / og:image 中。
+绑定正式域名后，把 `yourdomain.com` 全局替换为你的真实域名即可（6 个 html + sitemap.xml + robots.txt，共 8 个文件）。
 
-2. **上传代码**
-   - GitHub 新建仓库（Public 即可，如 `fenglong-trade-site`）
-   - 把 `index.html` 和 `img/` 文件夹上传到仓库根目录
+## 更新步骤（已部署过，后续照此操作）
 
-3. **部署到 Cloudflare Pages**
-   - Cloudflare 控制台 → Workers & Pages → Create → Pages → Connect to Git
-   - 授权并选择刚建的仓库 → 框架选 None（纯静态）→ Save and Deploy
-   - 部署完成后会得到一个 `xxx.pages.dev` 地址，可立即访问
-   - 之后每次修改代码并 `git push`，网站自动更新
-
-4. **绑定自己的域名（推荐）**
-   - 购买域名（.com 约 60–100 元/年，Namesilo / 阿里云 / 腾讯云均可）
-   - Cloudflare → 添加站点 → 把域名 DNS 托管到 Cloudflare（按提示修改 NS 记录）
-   - Workers & Pages → 选择站点 → Custom domains → 添加你的域名
-   - HTTPS 证书自动签发，无需配置
-
-5. **SEO（上线后做）**
-   - 在 Google Search Console 提交 `你的域名/sitemap.xml`（页面已含 meta 描述与关键词）
-   - 建议后续把询盘表单升级为自动发邮件（Cloudflare Pages Functions + Resend 免费 3000 封/月）
+1. 改完代码后，把修改的文件上传/推送到 GitHub 仓库**根目录**（注意保持 `css/`、`img/` 的目录结构）
+2. Cloudflare Pages 检测到推送后自动重新部署，约 1 分钟生效
+3. 若访问 404：确认文件在仓库根目录、Deployments 状态为 Success
 
 ## 修改站点内容
 
-- 联系方式 / 公司名：直接编辑 `index.html` 中的对应文字（搜索 `YIWU FENGLONG`、`zhangyukunyl@gmail.com`、`152259` 即可定位）
-- 产品增删：复制/删除 `.card` 结构即可
-- 产品配图：替换 `img/` 下的 jpg 文件，保持同名即可
+- 联系方式 / 公司名：搜索 `zhangyukunyl@gmail.com`、`152259`、`YIWU FENGLONG` 全局定位
+- WhatsApp 号码：搜索 `wa.me/8615225911240`（浮动按钮 + 联系页），号码变更需同步修改
+- 导航栏：每个页面的 `<nav class="main">`，增删链接后同步修改所有页面
+- 产品增删：编辑 `products.html` 中对应 `.card`；参数表行也在此文件
+- 图片：替换 `img/` 下同名 jpg 即可，建议 1000px 宽左右、jpg 格式
+- 新增页面：复制任一页面骨架，改 title/meta 与内容，并在所有页面导航和页脚加链接
 
-## 上线前检查清单
+## 上线检查清单
 
-- [ ] 用浏览器打开 `index.html` 预览效果
-- [ ] 测试询盘表单（点击 Send Inquiry 应唤起邮件客户端）
-- [ ] 确认手机端显示正常（页面已响应式适配）
+- [ ] 浏览器打开 `index.html`，逐个点击导航测试 6 个页面互链
+- [ ] 测试询盘表单（Prepare My Inquiry → Send by Email / Send by WhatsApp）
+- [ ] 手机端浏览首页与产品页（响应式已适配）
+- [ ] 绑定域名后：全局替换 `yourdomain.com` 占位符
+- [ ] Google Search Console 提交 `你的域名/sitemap.xml`
+
+## 可选升级（需要时再说）
+
+- 询盘表单自动发邮件到 Gmail：Cloudflare Pages Functions + Resend（免费 3,000 封/月）
+- WhatsApp 直达按钮已有（右下角浮动）；可再加 Google Analytics 统计
